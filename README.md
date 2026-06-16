@@ -67,7 +67,7 @@ Run the bundled HermiT reasoner to verify logical consistency. The companion mar
 ## Status
 
 - **Version:** 0.1.0 (initial public release)
-- **Practitioner of record (anchor instance set):** Numan Karabıyık, Boochmania (Berkeley, CA)
+- **Practitioner of record (anchor instance set):** Numan Karabıyık, Boochmania (San Francisco, CA)
 - **Last updated:** 2026-06-15
 
 This is an active ontology. The schema is expected to evolve as additional practitioners contribute and as adjacent layers (Substance, Composition, Sensory, Cultural) come online.
@@ -86,9 +86,8 @@ This is the licensing convention used by Gene Ontology, FoodOn, ChEBI, and other
 
 If you reference this work in academic, applied, or commercial settings:
 
-> Karabıyık, N. (2026). *Apicus Layer 2: Transformation Ontology* (Version 0.1.0). Apicus AI. https://github.com/[your-username]/apicus-ontology
+> Karabıyık, N. (2026). *Apicus Layer 2: Transformation Ontology* (Version 0.1.0). Apicus AI. https://github.com/athenaeusnaucratis/apicus-ontology 
 
-(Replace `[your-username]` with the repo owner after first push.)
 
 ---
 
@@ -96,7 +95,7 @@ If you reference this work in academic, applied, or commercial settings:
 
 **Numan Karabıyık**
 Co-founder & Chef — Boochmania / Boochman Kombucha
-Berkeley, California
+San Francisco, California
 [info@boochmania.com](mailto:info@boochmania.com)
 
 For collaboration inquiries, schema critique, or practitioner contributions to future versions, please open an issue on this repository or reach out by email.

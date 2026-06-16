@@ -4,7 +4,7 @@
 
 **Apicus AI** is a modular agentic culinary assistant and catering management system being built around a knowledge-graph backbone. Its purpose is to model the *mind of a chef* in software: knowledge of substances, transformations, equipment, composition grammars, sensory outcomes, and cultural context — and the reasoning that combines them.
 
-Apicus AI is anchored in the operations of a working Levantine/Ottoman/Turkish catering business in Berkeley, California, but its architecture is designed from the start for multi-cuisine extensibility. The Levantine instance set is the first; it is not the boundary.
+Apicus AI is anchored in the operations of a working Levantine/Mediterranean bistro & catering business in San Francisco, California, but its architecture is designed from the start for multi-cuisine extensibility. The Levantine instance set is the first; it is not the boundary.
 
 ## What's built (as of the publication of this ontology)
 
@@ -24,7 +24,7 @@ The Layer 2 work published here is the first formal artifact of that effort.
 
 ## Practitioner background
 
-**Numan Karabıyık** is a trained chef (Culinary Arts, 2013) and co-founder of Boochmania / Boochman Kombucha, a Levantine catering business with a fermentation specialty in Berkeley, California. He maintains a personal library of 2,500+ cookbooks and brings a decade of professional kitchen experience to the project's anchor instance set.
+**Numan Karabıyık** is a trained chef (Culinary Arts, 2013) and co-founder of Boochmania / Boochman Kombucha, a Levantine/Mediterranean bistro with a fermentation specialty in SoMa, San Francisco, California. He maintains a personal library of 2,500+ cookbooks and brings a decade of professional kitchen experience to the project's anchor instance set.
 
 He came to ontology engineering through necessity, without prior background in IT or linguistics. The schema published here was built alongside study of:
 
@@ -57,5 +57,6 @@ Because the framing principle of the project — *that what exists is what can b
 ## Contact
 
 **Numan Karabıyık**
-Boochmania / Boochman Kombucha — Berkeley, CA
+Boochmania / Boochman Kombucha 
+San Francisco, CA
 [info@boochmania.com](mailto:info@boochmania.com)
