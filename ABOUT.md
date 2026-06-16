@@ -57,6 +57,6 @@ Because the framing principle of the project — *that what exists is what can b
 ## Contact
 
 **Numan Karabıyık**
-Boochmania / Boochman Kombucha 
+Boochmania / Boochman Kombucha -
 San Francisco, CA
 [info@boochmania.com](mailto:info@boochmania.com)
