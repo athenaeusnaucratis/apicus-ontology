@@ -1,0 +1,684 @@
+<?xml version="1.0"?>
+<!--
+  Apicus Layer 2: Transformation Ontology
+  ========================================
+  Formal ontology for culinary transformations.
+
+  Designed for multi-cuisine extensibility, with practitioner-verification,
+  cultural lineage, and adaptation under equipment constraint as first-class concerns.
+
+  Version:                  0.1.0 (initial schema)
+  Created:                  2026-06-05
+  Practitioner of record:   Numan / Boochmania (anchor instance set)
+  Editing tool:             Protégé (Stanford BMIR)
+  Runtime target:           Neo4j (via separate migration script)
+
+  Design decisions:
+    - Family is a multi-valued TAG, not a strict subclass hierarchy
+      (a transformation can be Chemical+Biological simultaneously)
+    - Provenance is mandatory on every Transformation instance (wrapper)
+    - Adaptation is a first-class entity, not a footnote
+    - Cultural lineage is a property of transformations, not a separate layer
+-->
+
+<rdf:RDF xmlns="http://apicus.ai/ontology/layer2#"
+     xml:base="http://apicus.ai/ontology/layer2"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+
+    <!-- ====================================================================
+         ONTOLOGY DECLARATION
+         ==================================================================== -->
+    <owl:Ontology rdf:about="http://apicus.ai/ontology/layer2">
+        <rdfs:label>Apicus Layer 2: Transformation Ontology</rdfs:label>
+        <dc:creator>Numan (Boochmania)</dc:creator>
+        <dc:date>2026-06-05</dc:date>
+        <owl:versionInfo>0.1.0</owl:versionInfo>
+        <rdfs:comment xml:lang="en">
+            Layer 2 of the Apicus culinary ontology. Models cooking transformations
+            with practitioner-verified provenance, multi-family classification,
+            cultural lineage, and adaptation under equipment constraint.
+        </rdfs:comment>
+    </owl:Ontology>
+
+    <!-- ====================================================================
+         CLASSES
+         ==================================================================== -->
+
+    <!-- Core class: Transformation -->
+    <owl:Class rdf:about="#Transformation">
+        <rdfs:label>Transformation</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            A culinary action that changes a substance — its structure, composition,
+            texture, flavor, microbial state, or compositional ratio. The fundamental
+            unit of Layer 2. May belong to multiple Families (thermal, mechanical,
+            chemical, biological). Always carries provenance.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- Adaptation: a Transformation that substitutes for another under constraint -->
+    <owl:Class rdf:about="#Adaptation">
+        <rdfs:label>Adaptation</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            A documented substitution where one Transformation replaces another,
+            typically due to equipment constraint. Preserves cultural lineage when
+            applicable. Captures quality compromises and gains.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- Family: thermal, mechanical, chemical, biological (controlled vocab) -->
+    <owl:Class rdf:about="#Family">
+        <rdfs:label>Family</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            Classification tag for a Transformation. Multi-valued — a transformation
+            may belong to multiple families (e.g., miso enzymatic action is both
+            Chemical and Biological).
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- ProcessStep: an ordered action within a Transformation -->
+    <owl:Class rdf:about="#ProcessStep">
+        <rdfs:label>ProcessStep</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            An ordered step within a Transformation's process. Carries sequence
+            number, prose description, and references to parameters/equipment
+            relevant to that step.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- Parameter: typed quantitative range -->
+    <owl:Class rdf:about="#Parameter">
+        <rdfs:label>Parameter</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            A typed quantitative parameter — temperature range, time range, salt
+            percentage, pH range, ratio, etc. Used in process steps and conditions.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- Parameter subclasses -->
+    <owl:Class rdf:about="#TemperatureRange">
+        <rdfs:subClassOf rdf:resource="#Parameter"/>
+        <rdfs:label>TemperatureRange</rdfs:label>
+    </owl:Class>
+    <owl:Class rdf:about="#TimeRange">
+        <rdfs:subClassOf rdf:resource="#Parameter"/>
+        <rdfs:label>TimeRange</rdfs:label>
+    </owl:Class>
+    <owl:Class rdf:about="#SaltPercentage">
+        <rdfs:subClassOf rdf:resource="#Parameter"/>
+        <rdfs:label>SaltPercentage</rdfs:label>
+    </owl:Class>
+    <owl:Class rdf:about="#PHRange">
+        <rdfs:subClassOf rdf:resource="#Parameter"/>
+        <rdfs:label>PHRange</rdfs:label>
+    </owl:Class>
+    <owl:Class rdf:about="#Ratio">
+        <rdfs:subClassOf rdf:resource="#Parameter"/>
+        <rdfs:label>Ratio</rdfs:label>
+    </owl:Class>
+
+    <!-- Equipment -->
+    <owl:Class rdf:about="#Equipment">
+        <rdfs:label>Equipment</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            A physical tool or piece of equipment used in a Transformation. Carries
+            model identifier and capability ranges (temperature, volume, power).
+            May be linked to a KitchenProfile.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- CulturalTradition -->
+    <owl:Class rdf:about="#CulturalTradition">
+        <rdfs:label>CulturalTradition</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            A named culinary tradition from which a Transformation descends or
+            with which it is associated (e.g., Kuyu Kebabi, Tsukemono, Levantine
+            hummus tradition).
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- PersonalOpinion -->
+    <owl:Class rdf:about="#PersonalOpinion">
+        <rdfs:label>PersonalOpinion</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            An attributed practitioner stance — a claim made by a specific
+            practitioner, with scope and attestation context. Distinguished from
+            objective facts; treated as opinion-data with full attribution.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- Practitioner -->
+    <owl:Class rdf:about="#Practitioner">
+        <rdfs:label>Practitioner</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            The chef-of-record for a Transformation. Carries name, scope of
+            expertise, declared years of experience, and kitchen affiliation.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- ReviewStatus -->
+    <owl:Class rdf:about="#ReviewStatus">
+        <rdfs:label>ReviewStatus</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            Epistemological status of a Transformation entry:
+            - Practiced: actively performed by the practitioner
+            - Scaffolded: named but not yet detailed (intent to deepen)
+            - DeclaredGap: deliberately excluded with reason
+            - Theoretical: known from literature but not personally practiced
+            - Unreviewed: default before review
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- Provenance (wrapper) -->
+    <owl:Class rdf:about="#Provenance">
+        <rdfs:label>Provenance</rdfs:label>
+        <rdfs:comment xml:lang="en">
+            Required wrapper meta on every Transformation instance. Tracks the
+            source document, contributing practitioner, date, and confidence level.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- ====================================================================
+         OBJECT PROPERTIES
+         ==================================================================== -->
+
+    <owl:ObjectProperty rdf:about="#hasFamily">
+        <rdfs:label>has family</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#Family"/>
+        <rdfs:comment>Multi-valued. A transformation can belong to multiple families.</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasProcessStep">
+        <rdfs:label>has process step</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#ProcessStep"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasParameter">
+        <rdfs:label>has parameter</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#Parameter"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#usesEquipment">
+        <rdfs:label>uses equipment</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#Equipment"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasCulturalLineage">
+        <rdfs:label>has cultural lineage</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#CulturalTradition"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasPersonalOpinion">
+        <rdfs:label>has personal opinion</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#PersonalOpinion"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasPractitionerOfRecord">
+        <rdfs:label>has practitioner of record</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#Practitioner"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasReviewStatus">
+        <rdfs:label>has review status</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#ReviewStatus"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasProvenance">
+        <rdfs:label>has provenance</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#Provenance"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#isAdaptedBy">
+        <rdfs:label>is adapted by</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="#Adaptation"/>
+    </owl:ObjectProperty>
+
+    <!-- Adaptation properties -->
+    <owl:ObjectProperty rdf:about="#isAdaptationOf">
+        <rdfs:label>is adaptation of</rdfs:label>
+        <rdfs:domain rdf:resource="#Adaptation"/>
+        <rdfs:range rdf:resource="#Transformation"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasAvailableSubstitute">
+        <rdfs:label>has available substitute</rdfs:label>
+        <rdfs:domain rdf:resource="#Adaptation"/>
+        <rdfs:range rdf:resource="#Transformation"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#preservesCulturalRoot">
+        <rdfs:label>preserves cultural root</rdfs:label>
+        <rdfs:domain rdf:resource="#Adaptation"/>
+        <rdfs:range rdf:resource="#CulturalTradition"/>
+    </owl:ObjectProperty>
+
+    <!-- ProcessStep linkage -->
+    <owl:ObjectProperty rdf:about="#stepUsesEquipment">
+        <rdfs:label>step uses equipment</rdfs:label>
+        <rdfs:domain rdf:resource="#ProcessStep"/>
+        <rdfs:range rdf:resource="#Equipment"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#stepUsesParameter">
+        <rdfs:label>step uses parameter</rdfs:label>
+        <rdfs:domain rdf:resource="#ProcessStep"/>
+        <rdfs:range rdf:resource="#Parameter"/>
+    </owl:ObjectProperty>
+
+    <!-- ====================================================================
+         DATA PROPERTIES
+         ==================================================================== -->
+
+    <owl:DatatypeProperty rdf:about="#name">
+        <rdfs:label>name</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#description">
+        <rdfs:label>description</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#causalMechanism">
+        <rdfs:label>causal mechanism</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>The "why does this work" explanation in prose.</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#qualityTarget">
+        <rdfs:label>quality target</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>What successful execution looks like in prose.</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#failureMode">
+        <rdfs:label>failure mode</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>What can go wrong and how to detect it. Multi-valued.</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#generalizesTo">
+        <rdfs:label>generalizes to</rdfs:label>
+        <rdfs:domain rdf:resource="#Transformation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>Use cases or dish contexts where this transformation's output applies.</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <!-- Adaptation prose properties -->
+    <owl:DatatypeProperty rdf:about="#qualityCompromise">
+        <rdfs:label>quality compromise</rdfs:label>
+        <rdfs:domain rdf:resource="#Adaptation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#qualityGain">
+        <rdfs:label>quality gain</rdfs:label>
+        <rdfs:domain rdf:resource="#Adaptation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- ProcessStep -->
+    <owl:DatatypeProperty rdf:about="#sequenceNumber">
+        <rdfs:label>sequence number</rdfs:label>
+        <rdfs:domain rdf:resource="#ProcessStep"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    </owl:DatatypeProperty>
+
+    <!-- Parameter -->
+    <owl:DatatypeProperty rdf:about="#minValue">
+        <rdfs:label>minimum value</rdfs:label>
+        <rdfs:domain rdf:resource="#Parameter"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#maxValue">
+        <rdfs:label>maximum value</rdfs:label>
+        <rdfs:domain rdf:resource="#Parameter"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#unit">
+        <rdfs:label>unit</rdfs:label>
+        <rdfs:domain rdf:resource="#Parameter"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#applicabilityNote">
+        <rdfs:label>applicability note</rdfs:label>
+        <rdfs:domain rdf:resource="#Parameter"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- Equipment -->
+    <owl:DatatypeProperty rdf:about="#model">
+        <rdfs:label>model</rdfs:label>
+        <rdfs:domain rdf:resource="#Equipment"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#capabilityRange">
+        <rdfs:label>capability range</rdfs:label>
+        <rdfs:domain rdf:resource="#Equipment"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- CulturalTradition -->
+    <owl:DatatypeProperty rdf:about="#region">
+        <rdfs:label>region</rdfs:label>
+        <rdfs:domain rdf:resource="#CulturalTradition"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#lineageNotes">
+        <rdfs:label>lineage notes</rdfs:label>
+        <rdfs:domain rdf:resource="#CulturalTradition"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- PersonalOpinion -->
+    <owl:DatatypeProperty rdf:about="#claim">
+        <rdfs:label>claim</rdfs:label>
+        <rdfs:domain rdf:resource="#PersonalOpinion"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#scope">
+        <rdfs:label>scope</rdfs:label>
+        <rdfs:domain rdf:resource="#PersonalOpinion"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#attestationContext">
+        <rdfs:label>attestation context</rdfs:label>
+        <rdfs:domain rdf:resource="#PersonalOpinion"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- Practitioner -->
+    <owl:DatatypeProperty rdf:about="#declaredExperience">
+        <rdfs:label>declared experience</rdfs:label>
+        <rdfs:domain rdf:resource="#Practitioner"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#kitchen">
+        <rdfs:label>kitchen</rdfs:label>
+        <rdfs:domain rdf:resource="#Practitioner"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- Provenance -->
+    <owl:DatatypeProperty rdf:about="#sourceDocument">
+        <rdfs:label>source document</rdfs:label>
+        <rdfs:domain rdf:resource="#Provenance"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#contributedDate">
+        <rdfs:label>contributed date</rdfs:label>
+        <rdfs:domain rdf:resource="#Provenance"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#confidence">
+        <rdfs:label>confidence</rdfs:label>
+        <rdfs:domain rdf:resource="#Provenance"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- ====================================================================
+         NAMED INDIVIDUALS — Controlled Vocabularies
+         ==================================================================== -->
+
+    <!-- Family individuals (4) -->
+    <Family rdf:about="#Family_Thermal">
+        <rdfs:label>Thermal</rdfs:label>
+        <description>Applying or removing heat to change a substance.</description>
+    </Family>
+    <Family rdf:about="#Family_Mechanical">
+        <rdfs:label>Mechanical</rdfs:label>
+        <description>Physical form change without primary heat or chemistry.</description>
+    </Family>
+    <Family rdf:about="#Family_Chemical">
+        <rdfs:label>Chemical</rdfs:label>
+        <description>Substance interaction changing molecular structure.</description>
+    </Family>
+    <Family rdf:about="#Family_Biological">
+        <rdfs:label>Biological</rdfs:label>
+        <description>Microbial or enzymatic action over time.</description>
+    </Family>
+
+    <!-- ReviewStatus individuals (5) -->
+    <ReviewStatus rdf:about="#Status_Practiced">
+        <rdfs:label>Practiced</rdfs:label>
+        <description>Actively performed by the practitioner of record.</description>
+    </ReviewStatus>
+    <ReviewStatus rdf:about="#Status_Scaffolded">
+        <rdfs:label>Scaffolded</rdfs:label>
+        <description>Named but not yet detailed; intent to deepen.</description>
+    </ReviewStatus>
+    <ReviewStatus rdf:about="#Status_DeclaredGap">
+        <rdfs:label>DeclaredGap</rdfs:label>
+        <description>Deliberately excluded with reason — not practiced.</description>
+    </ReviewStatus>
+    <ReviewStatus rdf:about="#Status_Theoretical">
+        <rdfs:label>Theoretical</rdfs:label>
+        <description>Known from literature but not personally practiced.</description>
+    </ReviewStatus>
+    <ReviewStatus rdf:about="#Status_Unreviewed">
+        <rdfs:label>Unreviewed</rdfs:label>
+        <description>Default state before any review.</description>
+    </ReviewStatus>
+
+    <!-- ====================================================================
+         EXAMPLE INSTANCES — Anchor data from Numan's documents
+         (Demonstrates schema can host real practitioner content)
+         ==================================================================== -->
+
+    <!-- Practitioner: Numan -->
+    <Practitioner rdf:about="#Practitioner_Numan">
+        <rdfs:label>Numan</rdfs:label>
+        <declaredExperience>10+ years professional kitchen practice; specialty in Levantine/Ottoman/Turkish cuisine with fermentation focus</declaredExperience>
+        <kitchen>Boochmania (Berkeley, CA)</kitchen>
+    </Practitioner>
+
+    <!-- Cultural traditions referenced -->
+    <CulturalTradition rdf:about="#Tradition_KuyuKebabi">
+        <rdfs:label>Kuyu Kebabi</rdfs:label>
+        <region>Anatolian / Turkic</region>
+        <lineageNotes>Pit-based whole-carcass cooking; sealed chamber, no liquid medium, cooks in own juices.</lineageNotes>
+    </CulturalTradition>
+    <CulturalTradition rdf:about="#Tradition_Tandoor">
+        <rdfs:label>Tandoor Tradition</rdfs:label>
+        <region>Indian / Pakistani / Afghan / broader South &amp; Central Asian</region>
+        <lineageNotes>Clay oven / sealed chamber cooking; cousin tradition to kuyu kebabi.</lineageNotes>
+    </CulturalTradition>
+    <CulturalTradition rdf:about="#Tradition_LevantineHummus">
+        <rdfs:label>Levantine Hummus</rdfs:label>
+        <region>Levant (Syria, Lebanon, Palestine, Jordan)</region>
+        <lineageNotes>Chickpea + tahini base; regional variations in acid, garlic, herbs.</lineageNotes>
+    </CulturalTradition>
+    <CulturalTradition rdf:about="#Tradition_JapaneseMiso">
+        <rdfs:label>Japanese Miso Tradition</rdfs:label>
+        <region>Japan</region>
+        <lineageNotes>Koji-cultured fermented soybean paste; here used as enzymatic agent in Levantine substrate.</lineageNotes>
+    </CulturalTradition>
+
+    <!-- Equipment referenced -->
+    <Equipment rdf:about="#Equipment_TurbofanOven">
+        <rdfs:label>Electric Convection Oven (Turbofan E32D5)</rdfs:label>
+        <model>Turbofan E32D5</model>
+        <capabilityRange>Thermostatic 150-550F; W: 28.88in D: 28.75in H: 31.88in; Volume: 20.1 cuft</capabilityRange>
+    </Equipment>
+    <Equipment rdf:about="#Equipment_Griddle">
+        <rdfs:label>Electric Flat-Top Griddle (Avantco EG36N)</rdfs:label>
+        <model>Avantco EG36N 36"</model>
+        <capabilityRange>120-570F surface temperature</capabilityRange>
+    </Equipment>
+    <Equipment rdf:about="#Equipment_Induction">
+        <rdfs:label>Induction Burner (Update IC-1800WN)</rdfs:label>
+        <model>Update International IC-1800WN</model>
+        <capabilityRange>140-464F</capabilityRange>
+    </Equipment>
+    <Equipment rdf:about="#Equipment_Robocoup">
+        <rdfs:label>Robocoup food processor</rdfs:label>
+        <model>Robocoup (commercial)</model>
+    </Equipment>
+    <Equipment rdf:about="#Equipment_HobartMixer">
+        <rdfs:label>Hobart Centerline Stand Mixer 20Qt</rdfs:label>
+        <model>Hobart HMM20-1STD 20 Qt</model>
+    </Equipment>
+    <Equipment rdf:about="#Equipment_HotelPanDeep">
+        <rdfs:label>Deep hotel pan (6 inch)</rdfs:label>
+        <model>Full-size 6" deep</model>
+    </Equipment>
+    <Equipment rdf:about="#Equipment_HotelPanShallow">
+        <rdfs:label>Shallow hotel pan (2 inch)</rdfs:label>
+        <model>Full-size 2" shallow</model>
+    </Equipment>
+
+    <!-- Provenance instances -->
+    <Provenance rdf:about="#Prov_kitch_on_txt">
+        <sourceDocument>data/onto/kitch.on.txt</sourceDocument>
+        <contributedDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-06-05</contributedDate>
+        <confidence>high</confidence>
+    </Provenance>
+    <Provenance rdf:about="#Prov_cm_on_txt">
+        <sourceDocument>data/onto/c'm.on.txt</sourceDocument>
+        <contributedDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-06-05</contributedDate>
+        <confidence>high</confidence>
+    </Provenance>
+    <Provenance rdf:about="#Prov_mek_on_txt">
+        <sourceDocument>data/onto/mek.on.txt</sourceDocument>
+        <contributedDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-06-05</contributedDate>
+        <confidence>high</confidence>
+    </Provenance>
+
+    <!-- Parameter instances for the examples -->
+    <TemperatureRange rdf:about="#Param_280F">
+        <minValue rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">280</minValue>
+        <maxValue rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">280</maxValue>
+        <unit>F</unit>
+        <applicabilityNote>oven setpoint for tandoor-substitute braise</applicabilityNote>
+    </TemperatureRange>
+    <TimeRange rdf:about="#Param_5h">
+        <minValue rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</minValue>
+        <maxValue rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</maxValue>
+        <unit>hours</unit>
+    </TimeRange>
+    <TimeRange rdf:about="#Param_5to7d_cold">
+        <minValue rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</minValue>
+        <maxValue rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7</maxValue>
+        <unit>days</unit>
+        <applicabilityNote>cold rest under refrigeration for miso enzymatic action</applicabilityNote>
+    </TimeRange>
+
+    <!-- PersonalOpinion instances -->
+    <PersonalOpinion rdf:about="#Opinion_CarcassOverCuts">
+        <claim>Whole lamb carcass is preferable to pre-cuts for three reasons: comparable $/lb, multi-functional yield across cuts, less surface area cut = less moisture loss during long braise.</claim>
+        <scope>Lamb butchering for braise applications</scope>
+        <attestationContext>10+ years professional practice (Numan, Boochmania)</attestationContext>
+    </PersonalOpinion>
+
+    <!-- ============================================
+         EXAMPLE TRANSFORMATION 1: Fermented Hummus
+         (Chemical + Biological — miso enzymatic action)
+         ============================================ -->
+    <Transformation rdf:about="#Tx_FermentedHummus">
+        <rdfs:label>Fermented Hummus</rdfs:label>
+        <hasFamily rdf:resource="#Family_Chemical"/>
+        <hasFamily rdf:resource="#Family_Biological"/>
+        <usesEquipment rdf:resource="#Equipment_Robocoup"/>
+        <hasParameter rdf:resource="#Param_5to7d_cold"/>
+        <hasCulturalLineage rdf:resource="#Tradition_LevantineHummus"/>
+        <hasCulturalLineage rdf:resource="#Tradition_JapaneseMiso"/>
+        <causalMechanism>Enzymes and yeast from white and garbanzo miso convert chickpea starches into simple sugars and break proteins down into amino acids during 5-7 day cold rest. Result: umami-rich profile with slight sweetness.</causalMechanism>
+        <qualityTarget>Clean smooth texture, no chunks or lumps after Robocoup processing; umami develops over cold rest.</qualityTarget>
+        <hasPractitionerOfRecord rdf:resource="#Practitioner_Numan"/>
+        <hasReviewStatus rdf:resource="#Status_Practiced"/>
+        <hasProvenance rdf:resource="#Prov_cm_on_txt"/>
+    </Transformation>
+
+    <!-- ============================================
+         EXAMPLE TRANSFORMATION 2: Hotel-Pan Tandoor Braise
+         (Thermal — with cultural lineage and adaptation)
+         ============================================ -->
+    <Transformation rdf:about="#Tx_HotelPanTandoorBraise">
+        <rdfs:label>Hotel-Pan Tandoor Braise (Lamb)</rdfs:label>
+        <hasFamily rdf:resource="#Family_Thermal"/>
+        <usesEquipment rdf:resource="#Equipment_TurbofanOven"/>
+        <usesEquipment rdf:resource="#Equipment_Griddle"/>
+        <usesEquipment rdf:resource="#Equipment_HotelPanDeep"/>
+        <usesEquipment rdf:resource="#Equipment_HotelPanShallow"/>
+        <hasParameter rdf:resource="#Param_280F"/>
+        <hasParameter rdf:resource="#Param_5h"/>
+        <hasCulturalLineage rdf:resource="#Tradition_KuyuKebabi"/>
+        <hasCulturalLineage rdf:resource="#Tradition_Tandoor"/>
+        <causalMechanism>Sealed pan replicates pit-chamber principle of kuyu kebabi / tandoor: carcass cooks in its own juices; no liquid medium required; vapor cannot escape, recycles back into meat.</causalMechanism>
+        <qualityTarget>Tender meat with preserved water content; thorough Maillard sear on skin side prior to braise.</qualityTarget>
+        <failureMode>Pre-cut shoulder loses moisture from exposed surface area during long cook.</failureMode>
+        <failureMode>Incomplete foil seal allows ventilation, defeating the pit principle.</failureMode>
+        <hasPersonalOpinion rdf:resource="#Opinion_CarcassOverCuts"/>
+        <hasPractitionerOfRecord rdf:resource="#Practitioner_Numan"/>
+        <hasReviewStatus rdf:resource="#Status_Practiced"/>
+        <hasProvenance rdf:resource="#Prov_kitch_on_txt"/>
+        <isAdaptedBy rdf:resource="#Adapt_TandoorToHotelPan"/>
+    </Transformation>
+
+    <!-- ============================================
+         DECLARED GAP: Original Clay-Pit Tandoor
+         (Practitioner does not currently use this)
+         ============================================ -->
+    <Transformation rdf:about="#Tx_OriginalTandoor">
+        <rdfs:label>Original Clay-Pit Tandoor / Kuyu Kebabi</rdfs:label>
+        <hasFamily rdf:resource="#Family_Thermal"/>
+        <hasCulturalLineage rdf:resource="#Tradition_KuyuKebabi"/>
+        <hasCulturalLineage rdf:resource="#Tradition_Tandoor"/>
+        <causalMechanism>Pit fired to embers, carcass placed in, sealed with clay/dough. No liquid medium. Long slow cook in own juices.</causalMechanism>
+        <hasPractitionerOfRecord rdf:resource="#Practitioner_Numan"/>
+        <hasReviewStatus rdf:resource="#Status_DeclaredGap"/>
+        <description>Declared gap: practitioner does not have access to clay tandoor or pit. Documented as the cultural origin to which the hotel-pan adaptation refers.</description>
+        <hasProvenance rdf:resource="#Prov_kitch_on_txt"/>
+    </Transformation>
+
+    <!-- Adaptation linking original tandoor → hotel-pan substitute -->
+    <Adaptation rdf:about="#Adapt_TandoorToHotelPan">
+        <rdfs:label>Tandoor → Hotel-Pan Adaptation</rdfs:label>
+        <isAdaptationOf rdf:resource="#Tx_OriginalTandoor"/>
+        <hasAvailableSubstitute rdf:resource="#Tx_HotelPanTandoorBraise"/>
+        <qualityCompromise>Less aromatic complexity due to absence of ember-smoke contribution.</qualityCompromise>
+        <qualityGain>Reproducible exact temperature control via convection oven (280F precise).</qualityGain>
+        <preservesCulturalRoot rdf:resource="#Tradition_KuyuKebabi"/>
+        <preservesCulturalRoot rdf:resource="#Tradition_Tandoor"/>
+    </Adaptation>
+
+    <!-- ============================================
+         EXAMPLE TRANSFORMATION 3: Lamb Carcass Butchering
+         (Mechanical — with generalizesTo cascade)
+         ============================================ -->
+    <Transformation rdf:about="#Tx_LambButchering">
+        <rdfs:label>Whole Lamb Carcass Butchering</rdfs:label>
+        <hasFamily rdf:resource="#Family_Mechanical"/>
+        <qualityTarget>Minimal cut surface area on parts intended for braise (preserves moisture); usable yield from every section.</qualityTarget>
+        <hasPersonalOpinion rdf:resource="#Opinion_CarcassOverCuts"/>
+        <generalizesTo>Rack — primary roast cut</generalizesTo>
+        <generalizesTo>Chops — individual portions</generalizesTo>
+        <generalizesTo>Loin, short loin, tenderloin — premium cuts</generalizesTo>
+        <generalizesTo>Scraps + loin → 80/20 beef-lamb kofte grind substrate</generalizesTo>
+        <hasPractitionerOfRecord rdf:resource="#Practitioner_Numan"/>
+        <hasReviewStatus rdf:resource="#Status_Practiced"/>
+        <hasProvenance rdf:resource="#Prov_mek_on_txt"/>
+    </Transformation>
+
+</rdf:RDF>
