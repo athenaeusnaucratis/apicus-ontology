@@ -94,7 +94,7 @@ If you reference this work in academic, applied, or commercial settings:
 ## Contact
 
 **Numan Karabıyık**
-Co-founder & Chef — Boochmania / Boochman Kombucha
+Co-founder & Chef — Boochmania / Boochman Kombucha -
 San Francisco, California
 [info@boochmania.com](mailto:info@boochmania.com)
 
